@@ -3,8 +3,9 @@ __pycache__
 build/
 *.pyc
 *.c
+*.pyd
 /experiments/*
-/shapenet/data/*
+/shapenet/*
 *.cpp
 /trash/
 !.gitkeep
