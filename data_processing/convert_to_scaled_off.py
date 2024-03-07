@@ -3,6 +3,7 @@ import glob
 import multiprocessing as mp
 from multiprocessing import Pool
 import trimesh
+import pymeshlab as ml
 
 INPUT_PATH = 'shapenet/data'
 
@@ -14,15 +15,18 @@ def to_off(path):
     input_file  = path + '/isosurf.obj'
     output_file = path + '/isosurf.off'
 
-    cmd = 'meshlabserver -i {} -o {}'.format(input_file,output_file)
+    # cmd = 'meshlabserver -i {} -o {}'.format(input_file,output_file)
     # if you run this script on a server: comment out above line and uncomment the next line
     # cmd = 'xvfb-run -a -s "-screen 0 800x600x24" meshlabserver -i {} -o {}'.format(input_file,output_file)
-    os.system(cmd)
+    # os.system(cmd)
+
+    ms = ml.MeshSet()
+    ms.load_new_mesh(input_file)
+    ms.save_current_mesh(output_file)
 
 
-
-p = Pool(mp.cpu_count())
-p.map(to_off, glob.glob( INPUT_PATH + '/*/*'))
+# p = Pool(mp.cpu_count())
+# p.map(to_off, glob.glob( INPUT_PATH + '/*/*'))
 
 def scale(path):
 
@@ -41,5 +45,10 @@ def scale(path):
         print('Error with {}'.format(path))
     print('Finished {}'.format(path))
 
-p = Pool(mp.cpu_count())
-p.map(scale, glob.glob( INPUT_PATH + '/*/*'))
+# p = Pool(mp.cpu_count())
+# p.map(scale, glob.glob( INPUT_PATH + '/*/*'))
+    
+if __name__ == '__main__':
+    p = Pool(mp.cpu_count())
+    p.map(to_off, glob.glob( INPUT_PATH + '/*/*'))
+    p.map(scale, glob.glob( INPUT_PATH + '/*/*'))
