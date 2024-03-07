@@ -44,5 +44,6 @@ if __name__ == '__main__':
 
     ROOT = 'shapenet/data'
 
-    p = Pool(mp.cpu_count())
+    # p = Pool(mp.cpu_count())
+    p = Pool(4)
     p.map(partial(voxelize, res=args.res), glob.glob( ROOT + '/*/*/'))
