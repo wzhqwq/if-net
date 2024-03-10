@@ -11,8 +11,7 @@ import torch
 
 class VoxelizedDataset(Dataset):
 
-
-    def __init__(self, mode, res = 32,  voxelized_pointcloud = False, pointcloud_samples = 3000, data_path = 'shapenet/data/', split_file = 'shapenet/split.npz',
+    def __init__(self, data, res = 32,  voxelized_pointcloud = False, pointcloud_samples = 3000, data_path = 'shapenet/data/',
                  batch_size = 64, num_sample_points = 1024, num_workers = 12, sample_distribution = [1], sample_sigmas = [0.015], **kwargs):
 
         self.sample_distribution = np.array(sample_distribution)
@@ -23,9 +22,7 @@ class VoxelizedDataset(Dataset):
         assert len(self.sample_distribution) == len(self.sample_sigmas)
 
         self.path = data_path
-        self.split = np.load(split_file)
-
-        self.data = self.split[mode]
+        self.data = data
         self.res = res
 
         self.num_sample_points = num_sample_points

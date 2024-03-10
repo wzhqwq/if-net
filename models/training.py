@@ -24,6 +24,7 @@ class Trainer(object):
 
         self.train_dataset = train_dataset
         self.val_dataset = val_dataset
+        self.val_data_iterator = self.val_dataset.get_loader().__iter__()
         self.exp_path = os.path.dirname(__file__) + '/../experiments/{}/'.format( exp_name)
         self.checkpoint_path = self.exp_path + 'checkpoints/'.format( exp_name)
         if not os.path.exists(self.checkpoint_path):
