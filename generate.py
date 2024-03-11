@@ -44,8 +44,9 @@ if args.model == 'ShapeNetPoints':
 if args.model == 'SVR':
     net = model.SVR()
 
+split = np.load('shapenet/split.npz')
 
-dataset = voxelized_data.VoxelizedDataset(args.mode, voxelized_pointcloud= args.pointcloud , pointcloud_samples= args.pc_samples, res=args.res, sample_distribution=args.sample_distribution,
+dataset = voxelized_data.VoxelizedDataset(split[args.mode], voxelized_pointcloud= args.pointcloud , pointcloud_samples= args.pc_samples, res=args.res, sample_distribution=args.sample_distribution,
                                           sample_sigmas=args.sample_sigmas ,num_sample_points=100, batch_size=1, num_workers=0)
 
 

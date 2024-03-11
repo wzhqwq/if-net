@@ -74,10 +74,9 @@ class Trainer(object):
 
         for epoch in range(start, epochs):
             train_data_loader = self.train_dataset.get_loader()
-            batches = list(train_data_loader)
 
             sum_loss = 0
-            with tqdm(batches) as pbar:
+            with tqdm(train_data_loader) as pbar:
                 pbar.set_description('Epoch {}'.format(epoch))
                 for batch in pbar:
                     loss = self.train_step(batch)
@@ -85,6 +84,7 @@ class Trainer(object):
                     pbar.set_postfix({'loss': '{:4f}'.format(loss)})
 
             val_loss = self.compute_val_loss()
+            print('Validation loss: {}'.format(val_loss))
             
             if self.val_min is None:
                 self.val_min = val_loss
@@ -95,7 +95,6 @@ class Trainer(object):
                 for path in glob(self.exp_path + 'val_min=*'):
                     os.remove(path)
                 np.save(self.exp_path + 'val_min={}'.format(epoch),[epoch,val_loss])
-
 
             wandb.log(
                 {
@@ -114,6 +113,8 @@ class Trainer(object):
                 self.save_checkpoint(epoch)
                 print('Saved checkpoint at epoch {}'.format(epoch))
 
+    def stop(self):
+        wandb.finish()
 
     def save_checkpoint(self, epoch):
         path = self.checkpoint_path + 'checkpoint_epoch_{}.tar'.format(epoch)
@@ -145,6 +146,7 @@ class Trainer(object):
         sum_val_loss = 0
         num_batches = 15
         with tqdm(range(num_batches)) as pbar:
+            pbar.set_description('Validating...')
             for _ in pbar:
                 try:
                     val_batch = self.val_data_iterator.next()

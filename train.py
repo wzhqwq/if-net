@@ -4,6 +4,7 @@ from models import training
 import argparse
 import torch
 import numpy as np
+import signal
 
 def main():
     # python train.py -posed -dist 0.5 0.5 -std_dev 0.15 0.05 -res 32 -batch_size 40 -m
@@ -59,6 +60,13 @@ def main():
 
     trainer = training.Trainer(net,torch.device("cuda"),train_dataset, val_dataset,exp_name, optimizer=args.optimizer)
     trainer.train_model(1500)
+
+    def signal_handler(sig, frame):
+        print('Terminating')
+        trainer.stop()
+        exit(0)
+    
+    signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == '__main__':
     main()
