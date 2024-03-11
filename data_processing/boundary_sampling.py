@@ -1,3 +1,4 @@
+from functools import partial
 import trimesh
 import numpy as np
 import implicit_waterproofing as iw
@@ -8,10 +9,12 @@ import argparse
 import os
 import traceback
 
+# from matplotlib import pyplot as plt
+
 ROOT = 'shapenet/data'
 
 
-def boundary_sampling(path):
+def boundary_sampling(path, args, sample_num = 100000):
     try:
 
         if os.path.exists(path +'/boundary_{}_samples.npz'.format(args.sigma)):
@@ -31,6 +34,16 @@ def boundary_sampling(path):
 
         occupancies = iw.implicit_waterproofing(mesh, boundary_points)[0]
 
+        # transformed_points = boundary_points
+        # transformed_points = transformed_points + np.array([0, 0, 0.1])
+        # in_points = transformed_points[occupancies > 0]
+        # in_points = in_points[np.abs(in_points[:, 2]) < 0.005]
+        # out_points = transformed_points[occupancies <= 0]
+        # out_points = out_points[np.abs(out_points[:, 2]) < 0.005]
+        # plt.scatter(in_points[:, 0], in_points[:, 1], c='b')
+        # plt.scatter(out_points[:, 0], out_points[:, 1], c='r')
+        # plt.show()
+
         np.savez(out_file, points=boundary_points, occupancies = occupancies, grid_coords= grid_coords)
         print('Finished {}'.format(path))
     except:
@@ -45,9 +58,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-
-    sample_num = 100000
-
-
     p = Pool(mp.cpu_count())
-    p.map(boundary_sampling, glob.glob( ROOT + '/*/*/'))
+    p.map(partial(boundary_sampling, args=args), glob.glob( ROOT + '/*/*/'))

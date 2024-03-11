@@ -1,0 +1,1 @@
+python train.py -std_dev 0.1 0.01 -res 128 -m ShapeNet128Vox -batch_size 12 -w 1 -dist 0.3 0.7

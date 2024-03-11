@@ -18,7 +18,7 @@ def voxelize(in_path, res):
         if os.path.exists(filename):
             return
 
-        mesh = trimesh.load(in_path + '/isosurf_scaled.off', process=False)
+        mesh = trimesh.load(in_path + '/teeth_scaled.off', process=False)
         occupancies = voxels.VoxelGrid.from_mesh(mesh, res, loc=[0, 0, 0], scale=1).data
         occupancies = np.reshape(occupancies, -1)
 
@@ -44,6 +44,6 @@ if __name__ == '__main__':
 
     ROOT = 'shapenet/data'
 
-    # p = Pool(mp.cpu_count())
-    p = Pool(4)
+    p = Pool(mp.cpu_count())
+    # p = Pool(4)
     p.map(partial(voxelize, res=args.res), glob.glob( ROOT + '/*/*/'))
