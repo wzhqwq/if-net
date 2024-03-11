@@ -144,7 +144,7 @@ class Trainer(object):
 
         sum_val_loss = 0
         num_batches = 15
-        with tqdm(total=num_batches) as pbar:
+        with tqdm(range(num_batches)) as pbar:
             for _ in pbar:
                 try:
                     val_batch = self.val_data_iterator.next()
@@ -152,6 +152,6 @@ class Trainer(object):
                     self.val_data_iterator = self.val_dataset.get_loader().__iter__()
                     val_batch = self.val_data_iterator.next()
 
-                sum_val_loss += self.compute_loss( val_batch).item()
+                sum_val_loss += self.compute_loss(val_batch).item()
 
         return sum_val_loss / num_batches
