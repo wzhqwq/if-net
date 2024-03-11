@@ -3,11 +3,10 @@ import torch
 import torch.optim as optim
 from torch.nn import functional as F
 import os
-from torch.utils.tensorboard import SummaryWriter
 from glob import glob
 import numpy as np
-
-
+import wandb
+from tqdm import tqdm
 
 
 class Trainer(object):
@@ -30,7 +29,6 @@ class Trainer(object):
         if not os.path.exists(self.checkpoint_path):
             print(self.checkpoint_path)
             os.makedirs(self.checkpoint_path)
-        self.writer = SummaryWriter(self.exp_path + 'summary'.format(exp_name))
         self.val_min = None
 
 
@@ -62,40 +60,59 @@ class Trainer(object):
         return loss
 
     def train_model(self, epochs):
-        loss = 0
+        wandb.init(
+            # set the wandb project where this run will be logged
+            project="virtual-gingival-1",
+            
+            # track hyperparameters and run metadata
+            config={
+                "dataset": "various-v1.1",
+                "epochs": 1500,
+            }
+        )
         start = self.load_checkpoint()
 
         for epoch in range(start, epochs):
-            sum_loss = 0
-            print('Start epoch {}'.format(epoch))
             train_data_loader = self.train_dataset.get_loader()
+            batches = list(train_data_loader)
 
-            if epoch % 1 == 0:
+            sum_loss = 0
+            with tqdm(batches) as pbar:
+                pbar.set_description('Epoch {}'.format(epoch))
+                for batch in pbar:
+                    loss = self.train_step(batch)
+                    sum_loss += loss
+                    pbar.set_postfix({'loss': '{:4f}'.format(loss)})
+
+            val_loss = self.compute_val_loss()
+            
+            if self.val_min is None:
+                self.val_min = val_loss
+            
+            is_best = val_loss < self.val_min
+            if is_best:
+                self.val_min = val_loss
+                for path in glob(self.exp_path + 'val_min=*'):
+                    os.remove(path)
+                np.save(self.exp_path + 'val_min={}'.format(epoch),[epoch,val_loss])
+
+
+            wandb.log(
+                {
+                    "train": {
+                        'last loss': loss,
+                        'avg loss': sum_loss / len(train_data_loader)
+                    },
+                    "val": {
+                        'loss': val_loss
+                    }
+                },
+                step=epoch
+            )
+
+            if epoch % 5 == 0 or is_best:
                 self.save_checkpoint(epoch)
-                val_loss = self.compute_val_loss()
-
-                if self.val_min is None:
-                    self.val_min = val_loss
-
-                if val_loss < self.val_min:
-                    self.val_min = val_loss
-                    for path in glob(self.exp_path + 'val_min=*'):
-                        os.remove(path)
-                    np.save(self.exp_path + 'val_min={}'.format(epoch),[epoch,val_loss])
-
-
-                self.writer.add_scalar('val loss batch avg', val_loss, epoch)
-
-
-            for batch in train_data_loader:
-                loss = self.train_step(batch)
-                print("Current loss: {}".format(loss))
-                sum_loss += loss
-
-
-            self.writer.add_scalar('training loss last batch', loss, epoch)
-            self.writer.add_scalar('training loss batch avg', sum_loss / len(train_data_loader), epoch)
-
+                print('Saved checkpoint at epoch {}'.format(epoch))
 
 
     def save_checkpoint(self, epoch):
@@ -127,13 +144,14 @@ class Trainer(object):
 
         sum_val_loss = 0
         num_batches = 15
-        for _ in range(num_batches):
-            try:
-                val_batch = self.val_data_iterator.next()
-            except:
-                self.val_data_iterator = self.val_dataset.get_loader().__iter__()
-                val_batch = self.val_data_iterator.next()
+        with tqdm(total=num_batches) as pbar:
+            for _ in pbar:
+                try:
+                    val_batch = self.val_data_iterator.next()
+                except:
+                    self.val_data_iterator = self.val_dataset.get_loader().__iter__()
+                    val_batch = self.val_data_iterator.next()
 
-            sum_val_loss += self.compute_loss( val_batch).item()
+                sum_val_loss += self.compute_loss( val_batch).item()
 
         return sum_val_loss / num_batches

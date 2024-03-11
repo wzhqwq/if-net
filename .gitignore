@@ -9,3 +9,4 @@ build/
 *.cpp
 /trash/
 !.gitkeep
+/wandb/
