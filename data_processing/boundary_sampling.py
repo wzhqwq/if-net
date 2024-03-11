@@ -20,11 +20,15 @@ def boundary_sampling(path, args, sample_num = 100000):
         if os.path.exists(path +'/boundary_{}_samples.npz'.format(args.sigma)):
             return
 
-        off_path = path + '/isosurf_scaled.off'
+        full_path = path + '/isosurf_scaled.off'
+        gingival_path = path + '/gingival_scaled.off'
         out_file = path +'/boundary_{}_samples.npz'.format(args.sigma)
 
-        mesh = trimesh.load(off_path)
-        points = mesh.sample(sample_num)
+        mesh = trimesh.load(full_path)
+        points = mesh.sample(sample_num // 2)
+        gingival = trimesh.load(gingival_path)
+        gingival_points = gingival.sample(sample_num // 2)
+        points = np.concatenate([points, gingival_points])
 
         boundary_points = points + args.sigma * np.random.randn(sample_num, 3)
         grid_coords = boundary_points.copy()
