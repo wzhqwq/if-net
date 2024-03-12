@@ -47,12 +47,13 @@ class Trainer(object):
         p = batch.get('grid_coords').to(device)
         occ = batch.get('occupancies').to(device)
         inputs = batch.get('inputs').to(device)
+        weights = batch.get('weights').to(device)
 
 
         # General points
         logits = self.model(p,inputs)
         loss_i = F.binary_cross_entropy_with_logits(
-            logits, occ, reduction='none')# out = (B,num_points) by componentwise comparing vecots of size num_samples:
+            logits, occ, reduction='none', weight=weights)# out = (B,num_points) by componentwise comparing vecots of size num_samples:
         # l(logits[n],occ[n]) for each n in B. i.e. l(logits[n],occ[n]) is vector of size num_points again.
 
         loss = loss_i.sum(-1).mean() # loss_i summed over all #num_samples samples -> out = (B,1) and mean over batch -> out = (1)
