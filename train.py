@@ -58,15 +58,15 @@ def main():
                                         ''.join(str(e) +'_'for e in args.sample_sigmas),
                                                                     args.res,args.model)
 
-    trainer = training.Trainer(net,torch.device("cuda"),train_dataset, val_dataset,exp_name, optimizer=args.optimizer)
-    trainer.train_model(1500)
-
     def signal_handler(sig, frame):
         print('Terminating')
         trainer.stop()
         exit(0)
     
     signal.signal(signal.SIGINT, signal_handler)
+
+    trainer = training.Trainer(net,torch.device("cuda"),train_dataset, val_dataset,exp_name, optimizer=args.optimizer)
+    trainer.train_model(1500)
 
 if __name__ == '__main__':
     main()
