@@ -4,7 +4,6 @@ from multiprocessing import Pool
 import argparse
 import os
 import shutil
-import numpy
 import numpy as np
 
 # python data_processing/filter_corrupted.py -file 'voxelization_32.npy'

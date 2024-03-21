@@ -9,7 +9,7 @@ import argparse
 from glob import glob
 import traceback
 import random
-from voxels import VoxelGrid
+from data_processing.voxels import VoxelGrid
 import numpy as np
 
 
@@ -35,7 +35,7 @@ def eval(path):
                 pred_mesh_path = path + '/surface_reconstruction.off'
                 pred_mesh = trimesh.load(pred_mesh_path, process=False)
 
-                gt_mesh_path = data_path + '/{}/{}/isosurf_scaled.off'.format(folder, file_name)
+                gt_mesh_path = data_path + '{}/{}/isosurf_scaled.off'.format(folder, file_name)
                 gt_mesh = trimesh.load(gt_mesh_path, process=False)
 
                 eval = eval_mesh(pred_mesh, gt_mesh, min, max)
@@ -49,7 +49,7 @@ def eval(path):
                 input_mesh = VoxelGrid(voxels, [0,0,0], 1).to_mesh()
                 input_mesh.export(off_path)
 
-                gt_mesh_path = data_path + '/{}/{}/isosurf_scaled.off'.format(folder,file_name)
+                gt_mesh_path = data_path + '{}/{}/isosurf_scaled.off'.format(folder,file_name)
                 gt_mesh = trimesh.load(gt_mesh_path, process=False)
 
                 eval = eval_mesh(input_mesh, gt_mesh, min, max)
@@ -57,7 +57,7 @@ def eval(path):
             else:
                 input_points_path = path + '/voxelized_point_cloud_128res_{}points.npz'.format(args.points)
                 input_points = np.load(input_points_path)['point_cloud'].astype(np.float32)
-                gt_mesh_path = data_path + '/{}/{}/isosurf_scaled.off'.format(folder, file_name)
+                gt_mesh_path = data_path + '{}/{}/isosurf_scaled.off'.format(folder, file_name)
 
                 gt_mesh = trimesh.load(gt_mesh_path, process=False)
                 pointcloud_gt, idx = gt_mesh.sample(100000, return_index=True)

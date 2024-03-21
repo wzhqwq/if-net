@@ -1,7 +1,7 @@
 from functools import partial
 import trimesh
 import numpy as np
-import data_processing.implicit_waterproofing as iw
+from . import implicit_waterproofing as iw
 import glob
 import multiprocessing as mp
 from multiprocessing import Pool
