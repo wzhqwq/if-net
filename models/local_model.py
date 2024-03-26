@@ -102,11 +102,10 @@ class ShapeNet128Vox(nn.Module):
         self.conv_1_1 = nn.Conv3d(64, 64, 3, padding=1)  # out: 32
         self.conv_2 = nn.Conv3d(64, 128, 3, padding=1)  # out: 16
         self.conv_2_1 = nn.Conv3d(128, 128, 3, padding=1)  # out: 16
-        # self.conv_3 = nn.Conv3d(128, 128, 3, padding=1)  # out: 8
-        # self.conv_3_1 = nn.Conv3d(128, 128, 3, padding=1)  # out: 8
+        self.conv_3 = nn.Conv3d(128, 128, 3, padding=1)  # out: 8
+        self.conv_3_1 = nn.Conv3d(128, 128, 3, padding=1)  # out: 8
 
-        # feature_size = (1 +  16 + 32 + 64 + 128 + 128 ) * 7
-        feature_size = (1 + 16 + 32 + 64 + 128) * 7
+        feature_size = (1 +  16 + 32 + 64 + 128 + 128 ) * 7
         self.fc_0 = nn.Conv1d(feature_size, hidden_dim, 1)
         self.fc_1 = nn.Conv1d(hidden_dim, hidden_dim, 1)
         self.fc_2 = nn.Conv1d(hidden_dim, hidden_dim, 1)
@@ -119,7 +118,7 @@ class ShapeNet128Vox(nn.Module):
         self.conv0_1_bn = nn.BatchNorm3d(32)
         self.conv1_1_bn = nn.BatchNorm3d(64)
         self.conv2_1_bn = nn.BatchNorm3d(128)
-        # self.conv3_1_bn = nn.BatchNorm3d(128)
+        self.conv3_1_bn = nn.BatchNorm3d(128)
 
 
         displacment = 0.0722
@@ -139,7 +138,7 @@ class ShapeNet128Vox(nn.Module):
 
         x = x.unsqueeze(1)  # x = (B,1,128,128,128)
 
-        p_features = p.transpose(1, -1)     # (B,3,num_samples)
+        # p_features = p.transpose(1, -1)     # (B,3,num_samples)
         p = p.unsqueeze(1).unsqueeze(1)     # (B,1,1,num_samples,3)
         p = torch.cat([p + d for d in self.displacments], dim=2)  # (B,1,7,num_samples,3)
         feature_0 = F.grid_sample(x, p)  # out : (B,1,1,7,sample_num)
@@ -165,18 +164,16 @@ class ShapeNet128Vox(nn.Module):
         net = self.actvn(self.conv_2_1(net))
         net = self.conv2_1_bn(net)
         feature_4 = F.grid_sample(net, p)
-        # net = self.maxpool(net)
+        net = self.maxpool(net)
 
-        # net = self.actvn(self.conv_3(net))
-        # net = self.actvn(self.conv_3_1(net))
-        # net = self.conv3_1_bn(net)
-        # feature_5 = F.grid_sample(net, p)
+        net = self.actvn(self.conv_3(net))
+        net = self.actvn(self.conv_3_1(net))
+        net = self.conv3_1_bn(net)
+        feature_5 = F.grid_sample(net, p)
 
         # here every channel corresponse to one feature.
 
-        # features = torch.cat((feature_0, feature_1, feature_2, feature_3, feature_4, feature_5),
-        #                      dim=1)  # (B, features, 1,7,sample_num)
-        features = torch.cat((feature_0, feature_1, feature_2, feature_3, feature_4),
+        features = torch.cat((feature_0, feature_1, feature_2, feature_3, feature_4, feature_5),
                              dim=1)  # (B, features, 1,7,sample_num)
         shape = features.shape
         features = torch.reshape(features,
