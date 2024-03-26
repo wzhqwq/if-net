@@ -13,7 +13,7 @@ import torch.nn.functional as F
 # ----------------------------------------------------------------------------------------------------
 class ShapeNet32Vox(nn.Module):
 
-    def __init__(self, hidden_dim=256):
+    def __init__(self, hidden_dim=256, device = torch.device('cuda')):
         super(ShapeNet32Vox, self).__init__()
 
         self.conv_1 = nn.Conv3d(1, 32, 3, padding=1)  # out: 32
@@ -46,7 +46,7 @@ class ShapeNet32Vox(nn.Module):
                 input[x] = y * displacment
                 displacments.append(input)
 
-        self.displacments = torch.Tensor(displacments).cuda()
+        self.displacments = torch.Tensor(displacments).to(device)
 
     def forward(self, p, x):
         x = x.unsqueeze(1)
@@ -92,7 +92,7 @@ class ShapeNet32Vox(nn.Module):
 
 class ShapeNet128Vox(nn.Module):
 
-    def __init__(self, hidden_dim=256):
+    def __init__(self, hidden_dim=256, device = torch.device('cuda')):
         super(ShapeNet128Vox, self).__init__()
         # accepts 128**3 res input
         self.conv_in = nn.Conv3d(1, 16, 3, padding=1)  # out: 128
@@ -130,7 +130,7 @@ class ShapeNet128Vox(nn.Module):
                 input[x] = y * displacment
                 displacments.append(input)
 
-        self.displacments = torch.Tensor(displacments).cuda()
+        self.displacments = torch.Tensor(displacments).to(device)
 
     def forward(self, p, x):
         # p = (B,num_samples,3)
@@ -196,7 +196,7 @@ class ShapeNet128Vox(nn.Module):
 
 class ShapeNetPoints(nn.Module):
 
-    def __init__(self, hidden_dim=256):
+    def __init__(self, hidden_dim=256, device = torch.device('cuda')):
         super(ShapeNetPoints, self).__init__()
         # 128**3 res input
         self.conv_in = nn.Conv3d(1, 16, 3, padding=1, padding_mode='border')
@@ -234,7 +234,7 @@ class ShapeNetPoints(nn.Module):
                 input[x] = y * displacment
                 displacments.append(input)
 
-        self.displacments = torch.Tensor(displacments).cuda()
+        self.displacments = torch.Tensor(displacments).to(device)
 
     def forward(self, p, x):
         x = x.unsqueeze(1)
