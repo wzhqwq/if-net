@@ -31,5 +31,5 @@ if __name__ == '__main__':
 
     ROOT = 'shapenet/data'
 
-    p = Pool(mp.cpu_count())
+    p = Pool(mp.cpu_count() // 2)
     p.map(create_voxel_off, glob.glob(ROOT + '/*/*/'))

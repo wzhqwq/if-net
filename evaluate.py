@@ -98,7 +98,7 @@ if __name__ == '__main__':
     min = -0.5
     max = 0.5
 
-    p = Pool(mp.cpu_count())
+    p = Pool(mp.cpu_count() // 2)
     if args.reconst:
         paths = glob(args.generation_path + '/*/*/')
     else:

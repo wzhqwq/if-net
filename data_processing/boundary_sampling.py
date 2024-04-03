@@ -128,6 +128,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    p = Pool(mp.cpu_count())
+    p = Pool(mp.cpu_count() // 2)
     p.map(partial(boundary_sampling, args=args), glob.glob( ROOT + '/*/*/'))
     # boundary_sampling(glob.glob( ROOT + '/*/*/')[0], args=args)
